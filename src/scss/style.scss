@@ -1,5 +1,19 @@
-@import "../../node_modules/normalize.css/normalize";
+@import "vars";
+@import "libs";
+@import "fonts";
+
 
 body {
   color: red;
+  display: flex;
 }
+
+
+
+
+
+
+
+
+
+@import "media";

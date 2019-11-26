@@ -3,14 +3,40 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="format-detection" content="telephone=no">
   <title>Template GULP + SCSS</title>
-  <!-- <link rel="stylesheet" href="css/style.min.css"> -->
-  <link rel="stylesheet" href="css/style.css">
+
+  <link rel="stylesheet" href="css/style.min.css">
 </head>
 
 <body>
-  THIS IS A TEMPLATE BUILD (GULP + SCSS)
-  <script src="js/main.js"></script>
+  <h1>THIS IS A TEMPLATE BUILD (GULP + SCSS)</h1>
+  <div class="test-svg">
+    <h2>Test .svg</h2>
+    <svg class="logo__icon--mobile" width="35" height="35">
+      <use xlink:href="img/sprites/sprite.svg#test">
+      </use>
+    </svg>
+  </div>
+
+  <h2>Test images (.webp and jpeg @1x/@2x)</h2>
+  <div class="photo-test">
+    <picture>
+      <source srcset="img/test@1x.webp 1x, img/test@2x.webp 2x" media="(min-width: 660px)" type="image/webp">
+      <source srcset="img/test@1x.jpg 1x, test@2x.jpg 2x" media="(min-width: 660px)">
+      <source srcset="img/test-tablet@1x.webp 1x, img/test-tablet@2x.webp 2x" type="image/webp">
+      <img class="photo-test__img" src="img/test-tablet@1x.jpg" srcset="img/test-tablet@2x.jpg 2x"
+        alt="Test responsive images">
+    </picture>
+  </div>
+
+  <h2>Test images (.webp and .png rotation)</h2>
+  <div class="photo-test--png">
+  </div>
+
+  <script src="js/libs.min.js"></script>
+  <script src="js/main.min.js"></script>
 </body>
 
 </html>

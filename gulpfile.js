@@ -1,11 +1,15 @@
 let gulp = require('gulp'),
   sass = require('gulp-sass'),
   browserSync = require('browser-sync'),
-  uglify = require('gulp-uglify'),
   concat = require('gulp-concat'),
   rename = require('gulp-rename'),
   del = require('del'),
-  autoprefixer = require('gulp-autoprefixer');
+  autoprefixer = require('gulp-autoprefixer'),
+  svgSprite = require('gulp-svg-sprite'),
+  svgmin = require('gulp-svgmin'),
+  cheerio = require('gulp-cheerio'),
+  replace = require('gulp-replace'),
+  terser = require('gulp-terser');
 
 gulp.task('html', function () {
   return gulp.src('src/*.html')
@@ -22,29 +26,46 @@ gulp.task('css-libs', function () {
 });
 
 gulp.task('scss', function () {
-  return gulp.src('src/scss/*.scss')
+  return gulp.src('src/scss/**/*.scss')
     .pipe(sass({ outputStyle: 'expanded' }))
-    /*
+    .pipe(autoprefixer({
+      overrideBrowserslist: ['last 30 versions'],
+      cascade: false
+    }))
+    .pipe(gulp.dest('src/css'))
     .pipe(sass({ outputStyle: 'compressed' }))
-    .pipe(rename({ suffix: '.min' })) */
+    .pipe(rename({ suffix: '.min' }))
     .pipe(gulp.dest('src/css'))
     .pipe(browserSync.reload({ stream: true }))
 });
 
 gulp.task('js', function () {
-  return gulp.src('src/js/*.js')
+  return gulp.src('src/js/main.js')
+    .pipe(terser({
+      output: {
+        comments: false
+      }
+    }))
+    .pipe(rename({ suffix: '.min' }))
+    .pipe(gulp.dest('src/js'))
     .pipe(browserSync.reload({ stream: true }))
 });
 
 gulp.task('js-libs', function () {
   return gulp.src([
-    '',
-    ''
+    'src/js/libs/modernizr-custom.js', /* .webp in CSS */
+    ' '
   ])
     .pipe(concat('libs.min.js'))
-    .pipe(uglify())
+    .pipe(terser({
+      output: {
+        comments: false
+      }
+    }))
     .pipe(gulp.dest('src/js'))
-    .pipe(browserSync.reload({ stream: true }))
+    .pipe(browserSync.reload({
+      stream: true
+    }))
 });
 
 gulp.task('img', function () {
@@ -60,6 +81,39 @@ gulp.task('browser-sync', function () {
   });
 });
 
+// SVG sprite
+
+gulp.task('svgSpriteBuild', function () {
+  return gulp.src('src/img/*.svg')
+    .pipe(svgmin({
+      js2svg: {
+        pretty: true
+      }
+    }))
+
+    .pipe(cheerio({
+      run: function ($) {
+        // $('[fill]').removeAttr('fill');
+        $('[stroke]').removeAttr('stroke');
+        $('[style]').removeAttr('style');
+      },
+      parserOptions: { xmlMode: true }
+    }))
+
+    .pipe(replace('&gt;', '>'))
+
+    .pipe(svgSprite({
+      mode: {
+        stack: {
+          sprite: '../sprite.svg'
+        }
+      }
+    }))
+
+    .pipe(gulp.dest('src/img/sprites/'))
+    .pipe(browserSync.reload({ stream: true }))
+})
+
 gulp.task('clean', async function () {
   del.sync('build')
 });
@@ -68,32 +122,27 @@ gulp.task('pack', async function () {
   let moveHTML = gulp.src('src/*.html')
     .pipe(gulp.dest('build'));
 
-  let moveCSS = gulp.src('src/css/*.css')
-    .pipe(autoprefixer({
-      overrideBrowserslist: ['last 10 versions'],
-      cascade: false
-    }))
-    .pipe(sass({ outputStyle: 'compressed' }))
-    .pipe(rename({ suffix: '.min' }))
+  let moveCSS = gulp.src('src/css/*.min.css')
     .pipe(gulp.dest('build/css'));
 
-  let moveJS = gulp.src('src/js/*.js')
+  let moveJS = gulp.src('src/js/*.min.js')
     .pipe(gulp.dest('build/js'));
 
   let moveFonts = gulp.src('src/fonts/*.*')
     .pipe(gulp.dest('build/fonts'));
 
-  let moveImg = gulp.src('src/img/*.*')
+  let moveImg = gulp.src(['src/img/**/*.*', '!src/img/*.svg'], { base: './src/img' })
     .pipe(gulp.dest('build/img'));
 });
 
 gulp.task('watch', function () {
-  gulp.watch('src/scss/*.scss', gulp.parallel('scss'))
+  gulp.watch('src/scss/**/*.scss', gulp.parallel('scss'))
   gulp.watch('src/*.html', gulp.parallel('html'))
   gulp.watch('src/*.js', gulp.parallel('js'))
   gulp.watch('src/img/*.*', gulp.parallel('img'))
+  gulp.watch('src/img/*.svg', gulp.parallel('svgSpriteBuild'))
 });
 
 gulp.task('build', gulp.series('clean', 'pack'))
 
-gulp.task('default', gulp.parallel('css-libs', 'html', 'scss', 'js', 'img', 'browser-sync', 'watch'));
+gulp.task('default', gulp.parallel('css-libs', 'html', 'scss', 'js-libs', 'js', 'img', 'svgSpriteBuild', 'browser-sync', 'watch'));

@@ -1,0 +1,47 @@
+h1, h2 {
+  text-align: center;
+  text-decoration: underline;
+}
+
+.test-svg {
+  padding: 10px;
+  background-color: rgb(183, 228, 240);
+  text-align: center;
+}
+
+.photo-test {
+  padding: 10px;
+  width: 100%;
+  height: 506px;
+  margin: 0 auto;
+
+  box-sizing: border-box;
+
+  background-color: rgb(145, 230, 142);
+}
+
+.photo-test--png {
+  width: 512px;
+  height: 512px;
+  margin: 0 auto;
+
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: cover;
+}
+
+/* For modern browsers */
+.webp .photo-test--png {
+  background-image: url(../../img/test.webp);
+}
+
+/* For Safari and IE-11 */
+.no-webp .photo-test--png {
+  background-image: url(../../img/test.png);
+}
+
+.photo-test__img {
+  width: 100%;
+  height: 100%;
+}
+  

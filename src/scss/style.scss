@@ -1,19 +1,14 @@
-@import "vars";
-@import "libs";
-@import "fonts";
+@import "helpers/variables";
+@import "helpers/mixins";
+@import "base/fonts";
+@import "base/libs";
+@import "base/global";
 
 
-body {
-  color: red;
-  display: flex;
-}
-
-
-
+// index.html
+@import "components/test";
 
 
 
 
 
-
-@import "media";
